@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbon Footprint Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #d4fc79, #96e6a1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      width: 350px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #4caf50;
+      outline: none;
+      box-shadow: 0 0 5px #4caf50;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #4caf50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    button:hover {
+      background: #388e3c;
+      transform: scale(1.05);
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1b5e20;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .result.show {
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);} 
+      to {opacity: 1; transform: translateY(0);} 
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🌱 Carbon Calculator</h2>
+
+  <label>Electricity Usage (kWh/month)</label>
+  <input type="number" id="electricity" placeholder="e.g. 200">
+
+  <label>Car Travel (km/month)</label>
+  <input type="number" id="travel" placeholder="e.g. 500">
+
+  <label>Waste Generated (kg/month)</label>
+  <input type="number" id="waste" placeholder="e.g. 30">
+
+  <button onclick="calculateFootprint()">Calculate</button>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+function calculateFootprint() {
+  let electricity = document.getElementById('electricity').value || 0;
+  let travel = document.getElementById('travel').value || 0;
+  let waste = document.getElementById('waste').value || 0;
+
+  // Simple estimation factors
+  let electricityCO2 = electricity * 0.92;
+  let travelCO2 = travel * 0.21;
+  let wasteCO2 = waste * 0.5;
+
+  let total = (electricityCO2 + travelCO2 + wasteCO2).toFixed(2);
+
+  let resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = `Your Carbon Footprint: <br><strong>${total} kg CO₂/month</strong>`;
+  resultDiv.classList.add('show');
+}
+</script>
+
+</body>
+</html>
