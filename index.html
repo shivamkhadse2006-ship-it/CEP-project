@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carbon Footprint Calculator</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -43,13 +45,6 @@
       margin-top: 5px;
       border-radius: 10px;
       border: 1px solid #ccc;
-      transition: 0.3s;
-    }
-
-    input:focus {
-      border-color: #4caf50;
-      outline: none;
-      box-shadow: 0 0 5px #4caf50;
     }
 
     button {
@@ -62,12 +57,10 @@
       color: white;
       font-size: 16px;
       cursor: pointer;
-      transition: transform 0.2s, background 0.3s;
     }
 
     button:hover {
       background: #388e3c;
-      transform: scale(1.05);
     }
 
     .result {
@@ -77,7 +70,7 @@
       font-weight: 600;
       color: #1b5e20;
       opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      transition: 0.5s;
     }
 
     .result.show {
@@ -89,11 +82,12 @@
     }
 
     @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);} 
-      to {opacity: 1; transform: translateY(0);} 
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -111,7 +105,7 @@
   <label>Meat Consumption (kg/month)</label>
   <input type="number" id="meat" placeholder="10">
 
-  <button onclick="calculateFootprint()">Calculate</button>
+  <button type="button" onclick="calculateFootprint()">Calculate</button>
 
   <div class="result" id="result"></div>
   <canvas id="chart"></canvas>
@@ -121,15 +115,20 @@
 let chart;
 
 function calculateFootprint() {
-  let electricity = document.getElementById('electricity').value || 0;
-  let travel = document.getElementById('travel').value || 0;
-  let waste = document.getElementById('waste').value || 0;
-  let meat = document.getElementById('meat').value || 0;
+  let electricity = parseFloat(document.getElementById('electricity').value) || 0;
+  let travel = parseFloat(document.getElementById('travel').value) || 0;
+  let waste = parseFloat(document.getElementById('waste').value) || 0;
+  let meat = parseFloat(document.getElementById('meat').value) || 0;
+
+  if (electricity === 0 && travel === 0 && waste === 0 && meat === 0) {
+    alert("Please enter values!");
+    return;
+  }
 
   let electricityCO2 = electricity * 0.92;
   let travelCO2 = travel * 0.21;
   let wasteCO2 = waste * 0.5;
-  let meatCO2 = meat * 27; // high impact
+  let meatCO2 = meat * 27;
 
   let total = electricityCO2 + travelCO2 + wasteCO2 + meatCO2;
 
@@ -138,17 +137,21 @@ function calculateFootprint() {
 
   if (total < 500) {
     level = "Normal ✅";
-    tips = "Great! Maintain eco habits like saving energy and reducing waste.";
+    tips = "Good job! Keep saving energy.";
   } else if (total < 1000) {
     level = "Medium ⚠️";
-    tips = "Reduce car usage, eat less meat, and save electricity.";
+    tips = "Reduce car usage & meat consumption.";
   } else {
     level = "High ❌";
-    tips = "Use public transport, switch to renewable energy, reduce meat consumption, recycle more.";
+    tips = "Use public transport, reduce meat, save electricity.";
   }
 
   let resultDiv = document.getElementById('result');
-  resultDiv.innerHTML = `Total: ${total.toFixed(2)} kg CO₂/month<br>Level: ${level}<br><small>${tips}</small>`;
+  resultDiv.innerHTML = `
+    Total: ${total.toFixed(2)} kg CO₂/month<br>
+    Level: ${level}<br>
+    <small>${tips}</small>
+  `;
   resultDiv.classList.add('show');
 
   drawChart(electricityCO2, travelCO2, wasteCO2, meatCO2);
@@ -158,3 +161,26 @@ function drawChart(electricity, travel, waste, meat) {
   const ctx = document.getElementById('chart').getContext('2d');
 
   if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Electricity', 'Travel', 'Waste', 'Meat'],
+      datasets: [{
+        data: [electricity, travel, waste, meat]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
