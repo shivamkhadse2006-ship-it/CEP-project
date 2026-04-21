@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carbon Footprint Calculator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       margin: 0;
@@ -13,14 +14,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .container {
       background: #ffffff;
-      padding: 30px;
+      padding: 25px;
       border-radius: 20px;
-      width: 350px;
+      width: 380px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       animation: fadeIn 1s ease-in-out;
     }
@@ -32,7 +33,7 @@
 
     label {
       display: block;
-      margin-top: 15px;
+      margin-top: 12px;
       font-weight: 500;
     }
 
@@ -53,7 +54,7 @@
 
     button {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 15px;
       padding: 12px;
       border: none;
       border-radius: 10px;
@@ -70,9 +71,9 @@
     }
 
     .result {
-      margin-top: 20px;
+      margin-top: 15px;
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       color: #1b5e20;
       opacity: 0;
@@ -81,6 +82,10 @@
 
     .result.show {
       opacity: 1;
+    }
+
+    canvas {
+      margin-top: 20px;
     }
 
     @keyframes fadeIn {
@@ -94,38 +99,62 @@
 <div class="container">
   <h2>🌱 Carbon Calculator</h2>
 
-  <label>Electricity Usage (kWh/month)</label>
-  <input type="number" id="electricity" placeholder="e.g. 200">
+  <label>Electricity (kWh/month)</label>
+  <input type="number" id="electricity" placeholder="200">
 
   <label>Car Travel (km/month)</label>
-  <input type="number" id="travel" placeholder="e.g. 500">
+  <input type="number" id="travel" placeholder="500">
 
-  <label>Waste Generated (kg/month)</label>
-  <input type="number" id="waste" placeholder="e.g. 30">
+  <label>Waste (kg/month)</label>
+  <input type="number" id="waste" placeholder="30">
+
+  <label>Meat Consumption (kg/month)</label>
+  <input type="number" id="meat" placeholder="10">
 
   <button onclick="calculateFootprint()">Calculate</button>
 
   <div class="result" id="result"></div>
+  <canvas id="chart"></canvas>
 </div>
 
 <script>
+let chart;
+
 function calculateFootprint() {
   let electricity = document.getElementById('electricity').value || 0;
   let travel = document.getElementById('travel').value || 0;
   let waste = document.getElementById('waste').value || 0;
+  let meat = document.getElementById('meat').value || 0;
 
-  // Simple estimation factors
   let electricityCO2 = electricity * 0.92;
   let travelCO2 = travel * 0.21;
   let wasteCO2 = waste * 0.5;
+  let meatCO2 = meat * 27; // high impact
 
-  let total = (electricityCO2 + travelCO2 + wasteCO2).toFixed(2);
+  let total = electricityCO2 + travelCO2 + wasteCO2 + meatCO2;
+
+  let level = "";
+  let tips = "";
+
+  if (total < 500) {
+    level = "Normal ✅";
+    tips = "Great! Maintain eco habits like saving energy and reducing waste.";
+  } else if (total < 1000) {
+    level = "Medium ⚠️";
+    tips = "Reduce car usage, eat less meat, and save electricity.";
+  } else {
+    level = "High ❌";
+    tips = "Use public transport, switch to renewable energy, reduce meat consumption, recycle more.";
+  }
 
   let resultDiv = document.getElementById('result');
-  resultDiv.innerHTML = `Your Carbon Footprint: <br><strong>${total} kg CO₂/month</strong>`;
+  resultDiv.innerHTML = `Total: ${total.toFixed(2)} kg CO₂/month<br>Level: ${level}<br><small>${tips}</small>`;
   resultDiv.classList.add('show');
-}
-</script>
 
-</body>
-</html>
+  drawChart(electricityCO2, travelCO2, wasteCO2, meatCO2);
+}
+
+function drawChart(electricity, travel, waste, meat) {
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  if (chart) chart.destroy();
